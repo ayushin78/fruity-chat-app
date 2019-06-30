@@ -40,7 +40,7 @@ func (c *client) read() {
  * 	of the client. Any message on the end channel is read from the channel
  *  and then written on the web socket.
  */
-func write(c *client) {
+func (c *client) write() {
 	for msg := range c.send {
 		if err := c.conn.WriteMessage(1, msg); err != nil {
 			log.Println(err)
