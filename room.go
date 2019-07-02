@@ -16,22 +16,24 @@ type room struct {
 
  **************************************************************************************/
 func (r *room) run() {
-	select {
-	case c := <-r.register:
-		r.clients[c] = true
-	case c := <-r.unregister:
-		delete(r.clients, c)
-		close(c.send)
+	for {
+		select {
+		case c := <-r.register:
+			r.clients[c] = true
+		case c := <-r.unregister:
+			delete(r.clients, c)
+			close(c.send)
 
-	case msg := <-r.broadcast:
-		for c := range r.clients {
-			select {
-			case c.send <- msg:
-			default:
-				close(c.send)
-				delete(r.clients, c)
+		case msg := <-r.broadcast:
+			for c := range r.clients {
+				select {
+				case c.send <- msg:
+				default:
+					close(c.send)
+					delete(r.clients, c)
+				}
+
 			}
-
 		}
 	}
 }
